@@ -30,17 +30,6 @@ const addEmployee = async(req, res) => {
          return res.status(400).json({message: 'All fields are required'})
        }
 
-    //    const employee = await prisma.user.update({
-    //     where: {
-    //         id: req.user.id
-    //     },
-    //     data: {
-    //         createdEmployee: {
-    //             create: data
-    //         }
-    //     }
-    //  });
-
     const employee = await prisma.employee.create({
       data: {
           ...data,
@@ -52,9 +41,85 @@ const addEmployee = async(req, res) => {
   } catch(e) {
      res.status(500).json({message: "something went wrong"}) 
   }
-} 
+}
+
+/** 
+  @route DELETE /api/employees/remove/:id
+  @desc remove employee
+  @access Private
+*/
+
+const removeEmployee = async(req, res) => {
+  try {
+    const {id} = req.params
+
+    if(id) {
+      await prisma.employee.delete({
+        where: {
+          id
+        }
+      })
+
+     res.status(204).json({message: 'user deleted'})
+    }
+  } catch(e) {
+    res.status(500).json({message: "failed to delete user"}) 
+  }
+}
+
+/** 
+  @route GET /api/employees/:id
+  @desc get the employee
+  @access Private
+*/
+
+const getEmployee = async(req, res) => {
+  try {
+    const {id} = req.params
+
+    if(id) {
+      const employee = await prisma.employee.findUnique({
+        where: {
+          id
+        }
+      })
+
+      res.status(200).json(employee)
+    }
+  } catch(e) {
+    res.status(500).json({message: "failed to get user"}) 
+  }
+}
+
+/** 
+  @route PUT /api/employees/edit/:id
+  @desc edit employee
+  @access Private
+*/
+
+const editEmployee = async(req, res) => {
+  try {
+    const data = req.body
+    const id = data.id
+    if(id) {
+      const employee = await prisma.employee.update({
+        where: {
+          id
+        },
+        data
+      })
+
+      res.status(204).json('employee')
+    }
+  } catch(e) {
+    res.status(500).json({message: "failed to edit user"}) 
+  }
+}
 
 module.exports = {
     getAllEmployees,
-    addEmployee
+    addEmployee,
+    removeEmployee,
+    getEmployee,
+    editEmployee
 }
